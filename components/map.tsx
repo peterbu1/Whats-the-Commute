@@ -83,7 +83,6 @@ export default function Map() {
     <div className="container">
       <div className="controls">
         <h1>What&apos;s your commute?</h1>
-        <p>Enter the address of your work.</p>
         {showWorkInput && (
           <Places setWork={handleWorkSelect} />
         )}

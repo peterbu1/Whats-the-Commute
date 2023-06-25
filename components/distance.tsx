@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 
 const secondsPerDay = 60 * 60 * 24;
+const averageCarbonEmissionPerMile = 0.4047;
 
 type DistanceProps = {
   leg: google.maps.DirectionsLeg;
@@ -27,13 +28,12 @@ export default function Distance({ leg }: DistanceProps) {
     setCommutesPerWeek(Number(event.target.value));
   };
 
+  const distanceInMiles = leg.distance.value / 1609.34;
   const daysPerYear = commutesPerWeek * 52 * 2; // Multiply by 2 for round trips
   const days = Math.floor((daysPerYear * leg.duration.value) / secondsPerDay);
-  const cost = Math.floor(
-    (leg.distance.value / 1609.34) *
-      (gasGallonCost / milesPerGallon) *
-      daysPerYear
-  );
+  const costPerCommute = (distanceInMiles / milesPerGallon) * gasGallonCost;
+  const annualGasCost = costPerCommute * daysPerYear;
+  const carbonFootprint = (distanceInMiles * averageCarbonEmissionPerMile * daysPerYear).toFixed(2);
 
   return (
     <div>
@@ -45,7 +45,12 @@ export default function Distance({ leg }: DistanceProps) {
 
       <p>
         That's <span className="highlight">{days} days</span> in your car each year at a cost of{' '}
-        <span className="highlight">${new Intl.NumberFormat().format(cost)}</span>.
+        <span className="highlight">${annualGasCost.toFixed(2)}</span>.
+      </p>
+
+      <p>
+        Your carbon footprint for this commute is approximately{' '}
+        <span className="highlight">{carbonFootprint} pounds of CO2</span>.
       </p>
 
       <div>
@@ -68,10 +73,16 @@ export default function Distance({ leg }: DistanceProps) {
         />
       </div>
 
-      <span className="info-icon" title="Calculation Details">
+      <span className="info-icon">
         <FontAwesomeIcon icon={faCircleInfo} />
         <span className="tooltip">
           The calculation is based on commuting {commutesPerWeek} times a week, {daysPerYear} times a year.
+          <br />
+          Cost breakdown:
+          <br />
+          - Gas cost per commute: ${(leg.distance.value / 1609.34 / milesPerGallon * gasGallonCost).toFixed(2)}
+          <br />
+          - Annual gas cost: ${new Intl.NumberFormat().format(annualGasCost)}
         </span>
       </span>
     </div>
