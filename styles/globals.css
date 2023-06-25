@@ -50,3 +50,18 @@ a {
   width: 100%;
   padding: 0.5rem;
 }
+
+.tooltip {
+  visibility: hidden;
+  position: absolute;
+  background-color: #333;
+  color: #fff;
+  padding: 5px;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+.info-icon:hover .tooltip {
+  visibility: visible;
+}
+

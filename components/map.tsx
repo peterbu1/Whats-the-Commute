@@ -14,10 +14,10 @@ type DirectionsResult = google.maps.DirectionsResult;
 type MapOptions = google.maps.MapOptions;
 
 export default function Map() {
-  const [office, setOffice] = useState<LatLngLiteral>();
+  const [work, setWork] = useState<LatLngLiteral>();
   const [home, setHome] = useState<LatLngLiteral | null>(null);
   const [directions, setDirections] = useState<DirectionsResult>();
-  const [showOfficeInput, setShowOfficeInput] = useState(true);
+  const [showWorkInput, setShowWorkInput] = useState(true);
   const [showHomeInput, setShowHomeInput] = useState(true);
   const mapRef = useRef<GoogleMap>();
   const center = useMemo<LatLngLiteral>(
@@ -33,30 +33,34 @@ export default function Map() {
     []
   );
   const onLoad = useCallback((map) => (mapRef.current = map), []);
-  const houses = useMemo(() => generateHouses(office || center), [office, center]);
+  const houses = useMemo(() => generateHouses(work || center), [work, center]);
 
   const fetchDirections = (house: LatLngLiteral) => {
-    if (!office) return;
+    if (!work) return;
 
     const service = new google.maps.DirectionsService();
     service.route(
       {
         origin: house,
-        destination: office,
+        destination: work,
         travelMode: google.maps.TravelMode.DRIVING,
       },
       (result, status) => {
         if (status === "OK" && result) {
+
+
           setDirections(result);
         }
       }
     );
   };
 
-  const handleOfficeSelect = (position: LatLngLiteral) => {
-    setOffice(position);
+
+
+  const handleWorkSelect = (position: LatLngLiteral) => {
+    setWork(position);
     mapRef.current?.panTo(position);
-    setShowOfficeInput(false);
+    setShowWorkInput(false);
   };
 
   const handleHomeSelect = (position: LatLngLiteral) => {
@@ -67,34 +71,33 @@ export default function Map() {
   };
 
   const handleReset = () => {
-    setOffice(undefined);
+    setWork(undefined);
     setHome(null);
     setDirections(undefined);
-    setShowOfficeInput(true);
+    setShowWorkInput(true);
     setShowHomeInput(true);
+    mapRef.current?.panTo(center);
   };
 
   return (
     <div className="container">
       <div className="controls">
-        <h1>Commute?</h1>
-        {showOfficeInput && !office && (
-          <Places
-            setOffice={handleOfficeSelect}
-          />
+        <h1>What&apos;s your commute?</h1>
+        <p>Enter the address of your work.</p>
+        {showWorkInput && (
+          <Places setWork={handleWorkSelect} />
         )}
-        {showHomeInput && office && !home && (
-          <Places
-            setOffice={handleOfficeSelect}
-            setHome={handleHomeSelect}
-          />
+        {work && !home && (
+          <Places setWork={handleWorkSelect} setHome={handleHomeSelect} />
         )}
-        {!showOfficeInput && <p>Enter the address of your office.</p>}
         {directions && <Distance leg={directions.routes[0].legs[0]} />}
-        {(office || home) && (
+        {(work || home) && (
           <button onClick={handleReset}>Reset</button>
         )}
       </div>
+
+
+
       <div className="map">
         <GoogleMap
           zoom={10}
@@ -120,7 +123,7 @@ export default function Map() {
             <>
               <Marker
                 position={home}
-                icon="https://maps.google.com/mapfiles/kml/shapes/homegardenbusiness.png"
+                icon={"https://maps.google.com/mapfiles/kml/shapes/homegardenbusiness.png"}
               />
               {directions && (
                 <DirectionsRenderer
@@ -137,10 +140,10 @@ export default function Map() {
             </>
           )}
 
-          {office && (
+          {work && (
             <>
               <Marker
-                position={office}
+                position={work}
                 icon="https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
               />
 
@@ -159,9 +162,9 @@ export default function Map() {
                 }
               </MarkerClusterer>
 
-              <Circle center={office} radius={15000} options={closeOptions} />
-              <Circle center={office} radius={30000} options={middleOptions} />
-              <Circle center={office} radius={45000} options={farOptions} />
+              <Circle center={work} radius={15000} options={closeOptions} />
+              <Circle center={work} radius={30000} options={middleOptions} />
+              <Circle center={work} radius={45000} options={farOptions} />
             </>
           )}
         </GoogleMap>
@@ -201,7 +204,7 @@ const farOptions = {
 };
 
 const generateHouses = (position: LatLngLiteral) => {
-  const numHouses = 800;
+  const numHouses = 4000;
   const radius = 0.065; // Adjust this value as needed
   const minDistance = 2 * radius;
 

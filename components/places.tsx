@@ -12,18 +12,18 @@ import {
 import "@reach/combobox/styles.css";
 
 type PlacesProps = {
-  setOffice: (position: google.maps.LatLngLiteral) => void;
+  setWork: (position: google.maps.LatLngLiteral) => void;
   setHome?: (position: google.maps.LatLngLiteral) => void;
   
 };
 
-export default function Places({ setOffice, setHome }: PlacesProps) {
+export default function Places({ setWork, setHome }: PlacesProps) {
   const {
     ready,
-    value: officeValue,
-    setValue: setOfficeValue,
-    suggestions: { status: officeStatus, data: officeData },
-    clearSuggestions: clearOfficeSuggestions,
+    value: WorkValue,
+    setValue: setWorkValue,
+    suggestions: { status: workStatus, data: workData },
+    clearSuggestions: clearWorkSuggestions,
   } = usePlacesAutocomplete();
 
   const {
@@ -33,14 +33,14 @@ export default function Places({ setOffice, setHome }: PlacesProps) {
     clearSuggestions: clearHomeSuggestions,
   } = usePlacesAutocomplete();
 
-  const handleOfficeSelect = async (val: string) => {
-    setOfficeValue(val, false);
-    clearOfficeSuggestions();
+  const handleWorkSelect = async (val: string) => {
+    setWorkValue(val, false);
+    clearWorkSuggestions();
 
     const results = await getGeocode({ address: val });
     const { lat, lng } = await getLatLng(results[0]);
 
-    setOffice({ lat, lng });
+    setWork({ lat, lng });
   };
 
   const handleHomeSelect = async (val: string) => {
@@ -50,26 +50,28 @@ export default function Places({ setOffice, setHome }: PlacesProps) {
     const results = await getGeocode({ address: val });
     const { lat, lng } = await getLatLng(results[0]);
 
-    setHome({ lat, lng });
+    if (setHome) {
+      setHome({ lat, lng });
+    }
   };
 
   return (
     <>
       <div>
-        <label htmlFor="office-input">Office Address:</label>
-        <Combobox onSelect={handleOfficeSelect}>
+        <label htmlFor="Work-input">Work Address:</label>
+        <Combobox onSelect={handleWorkSelect}>
           <ComboboxInput
-            id="office-input"
-            value={officeValue}
-            onChange={(e) => setOfficeValue(e.target.value)}
+            id="Work-input"
+            value={WorkValue}
+            onChange={(e) => setWorkValue(e.target.value)}
             disabled={!ready}
             className="combobox-input"
-            placeholder="Search office address"
+            placeholder="Search work address"
           />
           <ComboboxPopover>
             <ComboboxList>
-              {officeStatus === "OK" &&
-                officeData.map(({ place_id, description }) => (
+              {workStatus === "OK" &&
+                workData.map(({ place_id, description }) => (
                   <ComboboxOption key={place_id} value={description} />
                 ))}
             </ComboboxList>
