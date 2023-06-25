@@ -80,9 +80,9 @@ export default function Distance({ leg }: DistanceProps) {
           <br />
           Cost breakdown:
           <br />
-          - Gas cost per commute: ${(leg.distance.value / 1609.34 / milesPerGallon * gasGallonCost).toFixed(2)}
+          - Gas cost per commute: ${(distanceInMiles / milesPerGallon * gasGallonCost).toFixed(2)}
           <br />
-          - Annual gas cost: ${new Intl.NumberFormat().format(annualGasCost)}
+          - Annual gas cost: ${annualGasCost.toFixed(2)}
         </span>
       </span>
     </div>
